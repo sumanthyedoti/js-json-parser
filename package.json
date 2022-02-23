@@ -1,0 +1,18 @@
+{
+  "name": "json-parser",
+  "version": "1.0.0",
+  "description": "JSON Parser",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumanthyedoti/json-parser.git"
+  },
+  "author": "Sumanth Yedoti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sumanthyedoti/json-parser/issues"
+  },
+  "homepage": "https://github.com/sumanthyedoti/json-parser#readme"
+}
