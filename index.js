@@ -2,17 +2,8 @@ const fs = require("fs")
 const path = require("path")
 const readline = require("readline")
 
-const { arrayParser, objectParser } = require("./parsers")
+const jsonParser = require("./parsers")
 const { symbols, colors, colorLog } = require("./cli")
-
-function jsonParser(input) {
-  const parsers = [arrayParser, objectParser]
-  for (let p of parsers) {
-    let parsed = p(input)
-    if (parsed) return parsed
-  }
-  return null
-}
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -22,6 +13,7 @@ const rl = readline.createInterface({
 rl.on("close", function () {
   process.exit(0)
 })
+
 function completer(line = "./") {
   const input = line.slice(line.lastIndexOf("./"))
   const dir = input.slice(0, input.lastIndexOf("/") + 1)
@@ -33,11 +25,6 @@ function completer(line = "./") {
   return [hits.length ? hits : dirContent, line]
 }
 
-process.stdout.write("Hello")
-function clearLine() {
-  process.stdout.clearLine(0)
-  process.stdout.cursorTo(0)
-}
 colorLog(
   [colors.fgMagenta, "\n["],
   [colors.fgYellow, "{}"],
@@ -54,13 +41,14 @@ function readFileName() {
       rl.close()
     }
     parseJSON(input)
+    // create explicit loop
   })
 }
+
 function parseJSON(filename) {
-  clearLine()
   try {
     const data = fs.readFileSync(path.join(__dirname, filename), "utf8")
-    let res = jsonParser(data)
+    const res = jsonParser(data)
     if (res && (res[1] === "" || res[1] === "\n")) {
       colorLog([colors.fgGreen, "\n" + symbols.success], " Output")
       console.log("---------")

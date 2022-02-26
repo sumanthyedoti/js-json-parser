@@ -7,10 +7,10 @@ function nullParser(input) {
 
 function booleanParser(input) {
   const isTrue = input.indexOf("true") === 0
-  const isFalse = input.indexOf("false") === 0
   if (isTrue) {
     return [true, input.slice(4)]
   }
+  const isFalse = input.indexOf("false") === 0
   if (isFalse) {
     return [false, input.slice(5)]
   }
@@ -32,12 +32,13 @@ function stringParser(input) {
   if (input[0] !== '"') {
     return null
   }
-  let i = 1
   const validEscapeChars = ['"', "\\", "/", "b", "f", "n", "r", "t", "u"]
   const invalidChars = [
     9, //tab
     10, //line break
   ]
+
+  let i = 1
   while (input[i] !== '"') {
     if (invalidChars.includes(input[i].charCodeAt(0))) return null
     if (input[i] === "\\") {
@@ -50,7 +51,6 @@ function stringParser(input) {
   }
   return [input.slice(1, i), input.slice(i + 1)]
 }
-// ! test with backslashes
 
 function commaParser(input) {
   if (input[0] === ",") {
@@ -82,7 +82,7 @@ function valueParser(input) {
   return null
 }
 
-let removeSpace = (input) => {
+function removeSpace(input) {
   const match = input.match(/^\s+/)
   if (match) {
     return input.slice(match[0].length)
@@ -92,8 +92,9 @@ let removeSpace = (input) => {
 
 function arrayParser(input) {
   if (input[0] !== "[") return null
-  const arr = []
   input = input.slice(1)
+
+  const arr = []
   while (true) {
     input = removeSpace(input)
 
@@ -105,32 +106,37 @@ function arrayParser(input) {
     input = removeSpace(input)
 
     const commaParsed = commaParser(input)
-    if (!commaParsed) {
-      break
-    }
+    if (!commaParsed) break
     input = commaParsed[1]
+
     if (input === "]") return null
   }
+
   return input[0] === "]" ? [arr, removeSpace(input.slice(1))] : null
 }
 
 function objectParser(input) {
   if (input[0] !== "{") return null
-  let obj = {}
   input = input.slice(1)
+
+  const obj = {}
   while (true) {
     input = removeSpace(input)
-    let stringParsed = stringParser(input)
+
+    const stringParsed = stringParser(input)
     if (!stringParsed) break
-    let key = stringParsed[0]
+    const key = stringParsed[0]
     input = stringParsed[1]
 
-    let colonParsed = colonParser(input)
+    input = removeSpace(input)
+
+    const colonParsed = colonParser(input)
     if (!colonParsed) break
     input = colonParsed[1]
 
     input = removeSpace(input)
-    let valueParsed = valueParser(input)
+
+    const valueParsed = valueParser(input)
     if (!valueParsed) break
     obj[key] = valueParsed[0]
     input = valueParsed[1]
@@ -147,7 +153,13 @@ function objectParser(input) {
   return input[0] === "}" ? [obj, removeSpace(input.slice(1))] : null
 }
 
-module.exports = {
-  arrayParser,
-  objectParser,
+function jsonParser(input) {
+  const parsers = [arrayParser, objectParser]
+  for (let p of parsers) {
+    let parsed = p(input)
+    if (parsed) return parsed
+  }
+  return null
 }
+
+module.exports = jsonParser
