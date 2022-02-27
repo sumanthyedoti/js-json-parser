@@ -4,6 +4,7 @@ const readline = require("readline")
 
 const jsonParser = require("./parsers")
 const { symbols, colors, colorLog } = require("./cli")
+const { log } = require("console")
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -33,15 +34,26 @@ colorLog(
 )
 colorLog([colors.fgCyan, "================="])
 
-readFileName()
+// REPL
+;(async () => {
+  while (true) {
+    try {
+      const filename = await readFileName()
+      parseJSON(filename)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+})()
 
 function readFileName() {
-  rl.question("\nProvide JSON file to parse:\n", function (input) {
-    if (input === ":q" || input === ":quit") {
-      rl.close()
-    }
-    parseJSON(input)
-    // create explicit loop
+  return new Promise((resole, _) => {
+    rl.question("\nProvide JSON file to parse:\n", function (input) {
+      if (input === ":q" || input === ":quit") {
+        rl.close()
+      }
+      resole(input)
+    })
   })
 }
 
@@ -59,5 +71,4 @@ function parseJSON(filename) {
   } catch (err) {
     colorLog([colors.fgRed, symbols.warning], " " + err.message)
   }
-  readFileName()
 }
