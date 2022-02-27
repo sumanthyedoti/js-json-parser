@@ -34,7 +34,7 @@ const colors = {
 
 function colorLog(...colorValues) {
   let colorLogSetUp = colorValues.reduce((acc, it) => {
-    const color = typeof it === "object" ? it[0] : colors.reset
+    const color = Array.isArray(it) ? it[0] : colors.reset
     return (acc += `${color}%s`)
   }, "")
   colorLogSetUp += colors.reset
